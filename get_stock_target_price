@@ -1,0 +1,42 @@
+import requests
+from bs4 import BeautifulSoup
+
+
+# 定义函数来获取股票的最高和最低目标价格
+def get_price(soup, txt_price):
+  #target = soup.find('td', text=txt_price)
+  target_span = soup.find('span', string=txt_price)
+  price_span = target_span.find_next('span')
+  price = price_span.text.strip('$')
+  return price
+
+
+def get_stock_price(symbol):
+  # 构造 URL
+  url = f'https://www.tipranks.com/stocks/{symbol}/forecast'
+  # 发送 GET 请求获取页面内容
+  response = requests.get(url)
+  # 解析 HTML 页面
+  soup = BeautifulSoup(response.content, 'html.parser')
+  # 找到最高目标价和最低目标价的标签
+
+  # 提取最高目标价和最低目标价
+  high_price = get_price(soup, 'Highest Price Target')
+
+  low_price = get_price(soup, 'Lowest Price Target')
+  # 返回最高目标价和最低目标价
+  return {'High': high_price, 'Low': low_price}
+
+
+# 获取 Walmart（WMT）的最高和最低目标价
+wmt_price = get_stock_price('WMT')
+print('WMT:')
+print('最高目标价：', wmt_price['High'])
+print('最低目标价：', wmt_price['Low'])
+print()
+
+# 获取 Home Depot（HD）的最高和最低目标价
+hd_price = get_stock_price('HD')
+print('HD:')
+print('最高目标价：', hd_price['High'])
+print('最低目标价：', hd_price['Low'])
